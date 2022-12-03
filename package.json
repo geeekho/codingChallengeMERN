@@ -1,0 +1,20 @@
+{
+  "name": "prep",
+  "version": "1.0.0",
+  "description": "coding challenge",
+  "author": "Wajdi",
+  "license": "ISC",
+  "scripts": {
+	  "server": "cd backend/ && yarn dev",
+	  "client": "cd frontend/ && yarn start",
+	  "dev": "concurrently \"npm run client\" \"npm run server\"",
+    "docker:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up",
+    "docker:dev": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up",
+    "docker:test": "docker-compose -f docker-compose.yml -f docker-compose.test.yml up"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "nodemon": "^2.0.15"
+  }
+  
+}
