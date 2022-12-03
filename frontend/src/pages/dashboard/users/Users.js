@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     createStyles,
     Table,
@@ -11,11 +11,15 @@ import {
     Container,
     Flex,
     Button,
+    Loader
 } from '@mantine/core';
 import { keys } from '@mantine/utils';
 import { IconSelector, IconChevronDown, IconChevronUp, IconSearch, IconUserPlus } from '@tabler/icons';
 import { ActionButton } from '../../../components/ActionButton';
 import UserModal from './UserModal';
+import { dispatch } from '../../../redux/store';
+import { getEmployees } from '../../../redux/slices/employeesSlice';
+import useEmployee from '../../../hooks/useEmployee';
 
 const useStyles = createStyles((theme) => ({
     th: {
@@ -111,75 +115,13 @@ function sortData(
 }
 
 export default function Users() {
-
-
     const [modalOpen, setModalOpen] = useState(false)
+    const [updateData, setUpdateData] = useState(true)
 
-    const data = [
-        {
-            "name": "Athena Weissnat",
-            "company": "Little - Rippin",
-            "email": "Elouise.Prohaska@yahoo.com"
-        },
-        {
-            "name": "Deangelo Runolfsson",
-            "company": "Greenfelder - Krajcik",
-            "email": "Kadin_Trantow87@yahoo.com"
-        },
-        {
-            "name": "Danny Carter",
-            "company": "Kohler and Sons",
-            "email": "Marina3@hotmail.com"
-        },
-        {
-            "name": "Trace Tremblay PhD",
-            "company": "Crona, Aufderhar and Senger",
-            "email": "Antonina.Pouros@yahoo.com"
-        },
-        {
-            "name": "Derek Dibbert",
-            "company": "Gottlieb LLC",
-            "email": "Abagail29@hotmail.com"
-        },
-        {
-            "name": "Viola Bernhard",
-            "company": "Funk, Rohan and Kreiger",
-            "email": "Jamie23@hotmail.com"
-        },
-        {
-            "name": "Austin Jacobi",
-            "company": "Botsford - Corwin",
-            "email": "Genesis42@yahoo.com"
-        },
-        {
-            "name": "Hershel Mosciski",
-            "company": "Okuneva, Farrell and Kilback",
-            "email": "Idella.Stehr28@yahoo.com"
-        },
-        {
-            "name": "Mylene Ebert",
-            "company": "Kirlin and Sons",
-            "email": "Hildegard17@hotmail.com"
-        },
-        {
-            "name": "Lou Trantow",
-            "company": "Parisian - Lemke",
-            "email": "Hillard.Barrows1@hotmail.com"
-        },
-        {
-            "name": "Dariana Weimann",
-            "company": "Schowalter - Donnelly",
-            "email": "Colleen80@gmail.com"
-        },
-        {
-            "name": "Dr. Christy Herman",
-            "company": "VonRueden - Labadie",
-            "email": "Lilyan98@gmail.com"
-        },
+    const { isLoading, employees } = useEmployee();
 
-    ]
     const [search, setSearch] = useState('');
-    const [sortedData, setSortedData] = useState(data);
+    const [sortedData, setSortedData] = useState(employees);
     const [sortBy, setSortBy] = useState(null);
     const [reverseSortDirection, setReverseSortDirection] = useState(false);
 
@@ -187,24 +129,49 @@ export default function Users() {
         const reversed = field === sortBy ? !reverseSortDirection : false;
         setReverseSortDirection(reversed);
         setSortBy(field);
-        setSortedData(sortData(data, { sortBy: field, reversed, search }));
+        setSortedData(sortData(employees, { sortBy: field, reversed, search }));
     };
 
     const handleSearchChange = (event) => {
         const { value } = event.currentTarget;
         setSearch(value);
-        setSortedData(sortData(data, { sortBy, reversed: reverseSortDirection, search: value }));
+        setSortedData(sortData(employees, { sortBy, reversed: reverseSortDirection, search: value }));
     };
 
-    const rows = sortedData.map((row) => (
-        <tr key={row.name}>
+    const rows = sortedData.map((row) => {
+        console.log("setting rows");
+        console.log(sortedData);
+        return <tr key={row.name}>
             <td>{row.name}</td>
             <td>{row.email}</td>
-            <td>{row.company}</td>
+            <td>{row.role}</td>
             <td><ActionButton /></td>
         </tr>
-    ));
-    const { classes, cx } = useStyles();
+    });
+    const { classes } = useStyles();
+
+    useEffect(() => {
+
+        if (updateData) {
+            console.log("fetching employees");
+            dispatch(getEmployees()).then(() => {
+                setUpdateData(false)
+                setSortedData(employees)
+            });
+        }
+
+
+    }, [updateData, employees])
+
+
+    const handleUpdate = async () => {
+        console.log("cue");
+        setUpdateData(true);
+
+    };
+
+    if (isLoading)
+        return <Loader size="xl" />
 
     return (
         <>
@@ -253,11 +220,11 @@ export default function Users() {
                                     Email
                                 </Th>
                                 <Th
-                                    sorted={sortBy === 'company'}
+                                    sorted={sortBy === 'role'}
                                     reversed={reverseSortDirection}
-                                    onSort={() => setSorting('company')}
+                                    onSort={() => setSorting('role')}
                                 >
-                                    Company
+                                    Role
                                 </Th>
                                 <Th>
                                     Action
@@ -270,7 +237,7 @@ export default function Users() {
 
                             ) : (
                                 <tr>
-                                    <td colSpan={Object.keys(data[0]).length}>
+                                    <td colSpan={employees?.length > 0 ? Object.keys(employees[0]).length : 0}>
                                         <Text weight={500} align="center">
                                             Nothing found
                                         </Text>
@@ -280,7 +247,7 @@ export default function Users() {
                         </tbody>
                     </Table>
                 </ScrollArea>
-                {modalOpen && <UserModal show={modalOpen} handleClose={() => setModalOpen(false)} />}
+                {modalOpen && <UserModal handleUpdate={() => handleUpdate()} show={modalOpen} handleClose={() => setModalOpen(false)} />}
 
             </Container>
         </>

@@ -25,7 +25,7 @@ const createEmployee = async (userBody) => {
  */
 const queryEmployees = async (filter, options) => {
   const employees = await Employee.paginate(filter, options);
-  return employee;
+  return employees;
 };
 
 /**

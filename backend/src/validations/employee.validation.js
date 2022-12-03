@@ -11,9 +11,9 @@ const createEmployee = {
 
 const getEmployees = {
   query: Joi.object().keys({
-    email: Joi.string().required().email(),
-    name: Joi.string().required(),
-    role: Joi.string().required(),
+    email: Joi.string().email(),
+    name: Joi.string(),
+    role: Joi.string(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),

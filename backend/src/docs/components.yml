@@ -35,6 +35,24 @@ components:
         email: fake@example.com
         name: fake name
         role: dev
+    TimeSlot:
+      type: object
+      properties:
+        id:
+          type: string
+        start:
+          type: string
+          format: dateTime
+        finish:
+          type: string
+          format: dateTime
+        employees:
+          type: array
+      example:
+        id: 5ebac534954b54139806c112
+        start: 2020-05-12T22:50:21.817Z
+        finish: 2020-05-12T23:50:21.817Z
+        employees: [638b72532db0552954cb0e81, 638b72cc2db0552954cb0f01]
     Token:
       type: object
       properties:

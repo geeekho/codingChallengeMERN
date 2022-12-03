@@ -8,8 +8,16 @@ const getEmployees = async () => {
     return response.data;
 };
 
+//add project
+const addEmployee = async (data) => {
+    const response = await axiosInstance.post(API_URL, data);
+    return response.data;
+};
+
+
 const employeeService = {
     getEmployees,
+    addEmployee,
 };
 
 export default employeeService;

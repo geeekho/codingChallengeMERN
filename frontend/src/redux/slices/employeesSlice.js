@@ -1,5 +1,4 @@
-import { createSlice, createAction, createAsyncThunk } from '@reduxjs/toolkit';
-import authService from '../services/authService.js';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import employeeService from '../services/employeeService.js';
 
 
@@ -28,6 +27,17 @@ export const getEmployees = createAsyncThunk('employees/getEmployees', async (ob
     }
 });
 
+// Create new employee
+export const addEmployee = createAsyncThunk('employees/addEmployee', async (data, thunkAPI) => {
+    try {
+        return await employeeService.addEmployee(data);
+    } catch (error) {
+        const message =
+            (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+        return thunkAPI.rejectWithValue(message);
+    }
+});
+
 export const employeesSlice = createSlice({
     name: 'employees',
     initialState,
@@ -41,6 +51,7 @@ export const employeesSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            //get employees
             .addCase(getEmployees.pending, (state) => {
                 console.log('pending');
                 state.isLoading = true;
@@ -50,7 +61,7 @@ export const employeesSlice = createSlice({
                 console.log('fulfilled');
                 console.log(action.payload);
                 state.isLoading = false;
-                //state.employees = action.payload;
+                state.employees = action.payload.results;
                 state.message = '';
             })
             .addCase(getEmployees.rejected, (state, action) => {
@@ -58,8 +69,25 @@ export const employeesSlice = createSlice({
                 console.log(action.payload);
                 state.isLoading = false;
                 state.isError = true;
-                // state.message = action.payload.message ? action.payload.message : action.payload;
                 state.employees = [];
+            })
+            //add employee
+            .addCase(addEmployee.pending, (state) => {
+                console.log('pending');
+                state.isLoading = true;
+                state.message = '';
+            })
+            .addCase(addEmployee.fulfilled, (state, action) => {
+                console.log('fulfilled');
+                console.log(action.payload);
+                state.isLoading = false;
+                state.message = '';
+            })
+            .addCase(addEmployee.rejected, (state, action) => {
+                console.log('rejected');
+                console.log(action.payload);
+                state.isLoading = false;
+                state.isError = true;
             })
             ;
     },

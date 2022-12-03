@@ -11,11 +11,14 @@ const axiosInstance = axios.create({
 });
 
 export const setAuthToken = (config) => {
-    const token = JSON.parse(localStorage.getItem('redux-user'))
-
-    if (token) {
+    const user = JSON.parse(localStorage.getItem('redux-user'))
+    if (user) {
+        if (JSON.parse(user['user'])) {
+            const token = JSON.parse(user['user']).tokens.access.token
+            console.log(token);
+            config.headers.Authorization = `Bearer ${token}`
+        }
         //applying token
-        config.headers.Authorization = `Bearer ${token['token']}`
     } else {
         //deleting the token from header
         delete config.headers.Authorization;
